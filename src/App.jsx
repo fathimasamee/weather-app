@@ -17,19 +17,19 @@ const WeatherApp = () => {
     const conditionLower = condition.toLowerCase();
     
     if (conditionLower.includes('sunny') || conditionLower.includes('clear')) {
-      return isDay ? <Sun className="w-12 h-12 text-yellow-400" /> : <Sun className="w-12 h-12 text-gray-300" />;
+      return isDay ? <Sun size={48} style={{color: '#fbbf24'}} /> : <Sun size={48} style={{color: '#d1d5db'}} />;
     } else if (conditionLower.includes('partly cloudy') || conditionLower.includes('partly')) {
-      return <Cloud className="w-12 h-12 text-blue-300" />;
+      return <Cloud size={48} style={{color: '#93c5fd'}} />;
     } else if (conditionLower.includes('cloudy') || conditionLower.includes('overcast')) {
-      return <Cloud className="w-12 h-12 text-gray-400" />;
+      return <Cloud size={48} style={{color: '#9ca3af'}} />;
     } else if (conditionLower.includes('rain') || conditionLower.includes('drizzle')) {
-      return <CloudRain className="w-12 h-12 text-blue-500" />;
+      return <CloudRain size={48} style={{color: '#3b82f6'}} />;
     } else if (conditionLower.includes('snow')) {
-      return <CloudSnow className="w-12 h-12 text-blue-200" />;
+      return <CloudSnow size={48} style={{color: '#bfdbfe'}} />;
     } else if (conditionLower.includes('thunder') || conditionLower.includes('storm')) {
-      return <Zap className="w-12 h-12 text-yellow-500" />;
+      return <Zap size={48} style={{color: '#eab308'}} />;
     }
-    return <Sun className="w-12 h-12 text-yellow-400" />;
+    return <Sun size={48} style={{color: '#fbbf24'}} />;
   };
 
   const fetchWeather = async (city = currentCity) => {
@@ -94,7 +94,7 @@ const WeatherApp = () => {
   };
 
   const handleSearch = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (searchCity.trim()) {
       fetchWeather(searchCity.trim());
       setSearchCity('');
@@ -120,53 +120,102 @@ const WeatherApp = () => {
     fetchWeather();
   }, []);
 
+  // Inline styles for fallback
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 25%, #3730a3 50%, #581c87 75%, #7c2d12 100%)',
+    color: 'white',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  };
+
+  const cardStyle = {
+    background: 'rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(10px)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    borderRadius: '24px',
+    padding: '32px',
+    marginBottom: '32px'
+  };
+
+  const smallCardStyle = {
+    background: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: '16px',
+    padding: '16px',
+    textAlign: 'center'
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 flex items-center justify-center">
-        <div className="flex items-center space-x-3 text-white">
-          <Loader2 className="w-8 h-8 animate-spin" />
-          <span className="text-xl">Loading weather data...</span>
+      <div style={{...containerStyle, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+          <Loader2 size={32} style={{animation: 'spin 1s linear infinite'}} />
+          <span style={{fontSize: '20px'}}>Loading weather data...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 text-white">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div style={containerStyle}>
+      <div style={{maxWidth: '1200px', margin: '0 auto', padding: '32px 16px'}}>
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px'}}>
           <div>
-            <h1 className="text-2xl font-bold flex items-center">
-              <MapPin className="w-6 h-6 mr-2" />
+            <h1 style={{fontSize: '32px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', margin: '0'}}>
+              <MapPin size={24} />
               {weatherData?.location.name}
             </h1>
-            <p className="text-blue-200 text-sm">{getCurrentDate()}</p>
+            <p style={{color: '#bfdbfe', fontSize: '14px', margin: '4px 0 0 0'}}>{getCurrentDate()}</p>
           </div>
           
           {/* Search Bar */}
-          <div className="flex items-center">
-            <div className="relative">
-              <input
-                type="text"
-                value={searchCity}
-                onChange={(e) => setSearchCity(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch(e)}
-                placeholder="Search city..."
-                className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-4 py-2 pr-10 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/30"
-              />
-              <button
-                onClick={handleSearch}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-blue-200 hover:text-white"
-              >
-                <Search className="w-5 h-5" />
-              </button>
-            </div>
+          <div style={{position: 'relative'}}>
+            <input
+              type="text"
+              value={searchCity}
+              onChange={(e) => setSearchCity(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              placeholder="Search city..."
+              style={{
+                background: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '8px',
+                padding: '8px 40px 8px 16px',
+                color: 'white',
+                fontSize: '14px',
+                outline: 'none',
+                width: '200px'
+              }}
+            />
+            <button
+              onClick={handleSearch}
+              style={{
+                position: 'absolute',
+                right: '8px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                color: '#bfdbfe',
+                cursor: 'pointer',
+                padding: '4px'
+              }}
+            >
+              <Search size={20} />
+            </button>
           </div>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-200">
+          <div style={{
+            marginBottom: '24px',
+            padding: '16px',
+            background: 'rgba(239, 68, 68, 0.2)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '8px',
+            color: '#fecaca'
+          }}>
             {error}
           </div>
         )}
@@ -174,72 +223,88 @@ const WeatherApp = () => {
         {weatherData && (
           <>
             {/* Main Weather Card */}
-            <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 mb-8 border border-white/20">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-6">
-                  <div className="text-center">
-                    <div className="text-6xl font-light mb-2">
+            <div style={cardStyle}>
+              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '32px'}}>
+                <div style={{display: 'flex', alignItems: 'center', gap: '24px'}}>
+                  <div style={{textAlign: 'center'}}>
+                    <div style={{fontSize: '72px', fontWeight: '300', margin: '0 0 8px 0'}}>
                       {Math.round(weatherData.current.temp_c)}°
                     </div>
-                    <div className="text-blue-200 text-lg">
+                    <div style={{color: '#bfdbfe', fontSize: '18px'}}>
                       {weatherData.current.condition.text}
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-center w-24 h-24 bg-white/10 rounded-full">
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '96px',
+                    height: '96px',
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    borderRadius: '50%'
+                  }}>
                     {getWeatherIcon(weatherData.current.condition.text, weatherData.current.is_day)}
                   </div>
                 </div>
 
                 {/* Weather Stats */}
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="bg-white/5 rounded-2xl p-4 text-center">
-                    <Droplets className="w-6 h-6 mx-auto mb-2 text-blue-300" />
-                    <div className="text-sm text-blue-200">Humidity</div>
-                    <div className="text-xl font-semibold">{weatherData.current.humidity}%</div>
+                <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px', minWidth: '300px'}}>
+                  <div style={smallCardStyle}>
+                    <Droplets size={24} style={{color: '#93c5fd', margin: '0 auto 8px'}} />
+                    <div style={{fontSize: '14px', color: '#bfdbfe', marginBottom: '4px'}}>Humidity</div>
+                    <div style={{fontSize: '20px', fontWeight: '600'}}>{weatherData.current.humidity}%</div>
                   </div>
                   
-                  <div className="bg-white/5 rounded-2xl p-4 text-center">
-                    <Wind className="w-6 h-6 mx-auto mb-2 text-blue-300" />
-                    <div className="text-sm text-blue-200">Wind Speed</div>
-                    <div className="text-xl font-semibold">{weatherData.current.wind_kph} km/h</div>
+                  <div style={smallCardStyle}>
+                    <Wind size={24} style={{color: '#93c5fd', margin: '0 auto 8px'}} />
+                    <div style={{fontSize: '14px', color: '#bfdbfe', marginBottom: '4px'}}>Wind Speed</div>
+                    <div style={{fontSize: '20px', fontWeight: '600'}}>{weatherData.current.wind_kph} km/h</div>
                   </div>
                   
-                  <div className="bg-white/5 rounded-2xl p-4 text-center">
-                    <Sun className="w-6 h-6 mx-auto mb-2 text-yellow-400" />
-                    <div className="text-sm text-blue-200">UV Index</div>
-                    <div className="text-xl font-semibold">{weatherData.current.uv}</div>
+                  <div style={smallCardStyle}>
+                    <Sun size={24} style={{color: '#fbbf24', margin: '0 auto 8px'}} />
+                    <div style={{fontSize: '14px', color: '#bfdbfe', marginBottom: '4px'}}>UV Index</div>
+                    <div style={{fontSize: '20px', fontWeight: '600'}}>{weatherData.current.uv}</div>
                   </div>
                   
-                  <div className="bg-white/5 rounded-2xl p-4 text-center">
-                    <Eye className="w-6 h-6 mx-auto mb-2 text-blue-300" />
-                    <div className="text-sm text-blue-200">Visibility</div>
-                    <div className="text-xl font-semibold">{weatherData.current.vis_km} km</div>
+                  <div style={smallCardStyle}>
+                    <Eye size={24} style={{color: '#93c5fd', margin: '0 auto 8px'}} />
+                    <div style={{fontSize: '14px', color: '#bfdbfe', marginBottom: '4px'}}>Visibility</div>
+                    <div style={{fontSize: '20px', fontWeight: '600'}}>{weatherData.current.vis_km} km</div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* 5-Day Forecast */}
-            <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20">
-              <h2 className="text-xl font-semibold mb-6">5-Day Forecast</h2>
-              <div className="flex justify-between space-x-4">
+            <div style={cardStyle}>
+              <h2 style={{fontSize: '24px', fontWeight: '600', marginBottom: '24px'}}>5-Day Forecast</h2>
+              <div style={{display: 'flex', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap'}}>
                 {forecast.map((day, index) => (
-                  <div key={index} className="flex-1 text-center bg-white/5 rounded-2xl p-4 hover:bg-white/10 transition-colors">
-                    <div className="text-blue-200 text-sm mb-3">
+                  <div key={index} style={{
+                    flex: '1',
+                    minWidth: '140px',
+                    textAlign: 'center',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: '16px',
+                    padding: '16px',
+                    transition: 'background 0.3s ease'
+                  }}>
+                    <div style={{color: '#bfdbfe', fontSize: '14px', marginBottom: '12px'}}>
                       {index === 0 ? 'Tomorrow' : formatDate(day.date)}
                     </div>
-                    <div className="flex justify-center mb-3">
+                    <div style={{display: 'flex', justifyContent: 'center', marginBottom: '12px'}}>
                       {getWeatherIcon(day.day.condition.text)}
                     </div>
-                    <div className="text-xs text-blue-200 mb-2">
+                    <div style={{fontSize: '12px', color: '#bfdbfe', marginBottom: '8px'}}>
                       {day.day.condition.text}
                     </div>
-                    <div className="space-y-1">
-                      <div className="text-lg font-semibold">
+                    <div>
+                      <div style={{fontSize: '18px', fontWeight: '600', marginBottom: '4px'}}>
                         {Math.round(day.day.maxtemp_c)}°
                       </div>
-                      <div className="text-sm text-blue-300">
+                      <div style={{fontSize: '14px', color: '#93c5fd'}}>
                         {Math.round(day.day.mintemp_c)}°
                       </div>
                     </div>
@@ -250,6 +315,31 @@ const WeatherApp = () => {
           </>
         )}
       </div>
+
+      <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        
+        input::placeholder {
+          color: #bfdbfe;
+        }
+        
+        button:hover {
+          color: white !important;
+        }
+        
+        @media (max-width: 768px) {
+          .weather-stats {
+            grid-template-columns: 1fr !important;
+          }
+          
+          .forecast-container {
+            flex-direction: column !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };
