@@ -10,7 +10,9 @@ const WeatherApp = () => {
   const [error, setError] = useState('');
 
   // WeatherAPI.com API key
-  const API_KEY = 'ee0763dd2b8b4c7499e72736251306';
+const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
+
+
   const BASE_URL = 'https://api.weatherapi.com/v1';
 
   const getWeatherIcon = (condition, isDay = 1) => {
