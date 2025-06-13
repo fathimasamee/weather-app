@@ -16,20 +16,91 @@ const WeatherApp = () => {
   const getWeatherIcon = (condition, isDay = 1) => {
     const conditionLower = condition.toLowerCase();
     
+    // Clear/Sunny conditions
     if (conditionLower.includes('sunny') || conditionLower.includes('clear')) {
-      return isDay ? <Sun size={48} style={{color: '#fbbf24'}} /> : <Sun size={48} style={{color: '#d1d5db'}} />;
-    } else if (conditionLower.includes('partly cloudy') || conditionLower.includes('partly')) {
-      return <Cloud size={48} style={{color: '#93c5fd'}} />;
-    } else if (conditionLower.includes('cloudy') || conditionLower.includes('overcast')) {
-      return <Cloud size={48} style={{color: '#9ca3af'}} />;
-    } else if (conditionLower.includes('rain') || conditionLower.includes('drizzle')) {
-      return <CloudRain size={48} style={{color: '#3b82f6'}} />;
-    } else if (conditionLower.includes('snow')) {
-      return <CloudSnow size={48} style={{color: '#bfdbfe'}} />;
-    } else if (conditionLower.includes('thunder') || conditionLower.includes('storm')) {
-      return <Zap size={48} style={{color: '#eab308'}} />;
+      return isDay ? 
+        <Sun size={48} style={{color: '#fbbf24'}} /> : 
+        <div style={{position: 'relative'}}>
+          <Sun size={48} style={{color: '#e5e7eb', opacity: 0.8}} />
+          <div style={{
+            position: 'absolute',
+            top: '8px',
+            right: '8px',
+            width: '8px',
+            height: '8px',
+            backgroundColor: '#f3f4f6',
+            borderRadius: '50%',
+            boxShadow: '0 0 10px rgba(243, 244, 246, 0.8)'
+          }} />
+        </div>;
+    } 
+    
+    // Partly cloudy conditions
+    else if (conditionLower.includes('partly cloudy') || conditionLower.includes('partly')) {
+      return isDay ? 
+        <div style={{position: 'relative'}}>
+          <Sun size={40} style={{color: '#fbbf24', position: 'absolute', top: '-4px', left: '-4px'}} />
+          <Cloud size={48} style={{color: '#93c5fd', opacity: 0.9}} />
+        </div> :
+        <div style={{position: 'relative'}}>
+          <div style={{
+            position: 'absolute',
+            top: '4px',
+            right: '4px',
+            width: '12px',
+            height: '12px',
+            backgroundColor: '#e5e7eb',
+            borderRadius: '50%',
+            boxShadow: '0 0 8px rgba(229, 231, 235, 0.6)'
+          }} />
+          <Cloud size={48} style={{color: '#6b7280', opacity: 0.9}} />
+        </div>;
+    } 
+    
+    // Cloudy/Overcast conditions
+    else if (conditionLower.includes('cloudy') || conditionLower.includes('overcast')) {
+      return isDay ? 
+        <Cloud size={48} style={{color: '#9ca3af'}} /> : 
+        <Cloud size={48} style={{color: '#4b5563'}} />;
+    } 
+    
+    // Rainy conditions
+    else if (conditionLower.includes('rain') || conditionLower.includes('drizzle')) {
+      return isDay ? 
+        <CloudRain size={48} style={{color: '#3b82f6'}} /> : 
+        <CloudRain size={48} style={{color: '#1e40af'}} />;
+    } 
+    
+    // Snow conditions
+    else if (conditionLower.includes('snow')) {
+      return isDay ? 
+        <CloudSnow size={48} style={{color: '#bfdbfe'}} /> : 
+        <CloudSnow size={48} style={{color: '#93c5fd'}} />;
+    } 
+    
+    // Thunder/Storm conditions
+    else if (conditionLower.includes('thunder') || conditionLower.includes('storm')) {
+      return isDay ? 
+        <Zap size={48} style={{color: '#eab308'}} /> : 
+        <Zap size={48} style={{color: '#f59e0b'}} />;
     }
-    return <Sun size={48} style={{color: '#fbbf24'}} />;
+    
+    // Default fallback
+    return isDay ? 
+      <Sun size={48} style={{color: '#fbbf24'}} /> : 
+      <div style={{position: 'relative'}}>
+        <Sun size={48} style={{color: '#e5e7eb', opacity: 0.7}} />
+        <div style={{
+          position: 'absolute',
+          top: '8px',
+          right: '8px',
+          width: '8px',
+          height: '8px',
+          backgroundColor: '#f3f4f6',
+          borderRadius: '50%',
+          boxShadow: '0 0 10px rgba(243, 244, 246, 0.8)'
+        }} />
+      </div>;
   };
 
   const fetchWeather = async (city = currentCity) => {
