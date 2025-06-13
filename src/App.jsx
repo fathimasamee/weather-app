@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, Eye, Droplets, Wind, Sun, Cloud, CloudRain, CloudSnow, Zap, Loader2 } from 'lucide-react';
+import { Search, MapPin, Eye, Droplets, Wind, Sun, Cloud, CloudRain, CloudSnow, Zap, Loader2, Clock } from 'lucide-react';
 
 const WeatherApp = () => {
   const [weatherData, setWeatherData] = useState(null);
@@ -8,12 +8,20 @@ const WeatherApp = () => {
   const [searchCity, setSearchCity] = useState('');
   const [currentCity, setCurrentCity] = useState('Colombo');
   const [error, setError] = useState('');
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  // WeatherAPI.com API key
-const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
-
-
+  // WeatherAPI.com API key - you'll need to get one from weatherapi.com
+ const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
   const BASE_URL = 'https://api.weatherapi.com/v1';
+
+  // Update time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const getWeatherIcon = (condition, isDay = 1) => {
     const conditionLower = condition.toLowerCase();
@@ -147,12 +155,66 @@ const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
   };
 
   const getCurrentDate = () => {
+    if (weatherData && weatherData.location.localtime) {
+      // Use the city's local time directly from the API
+      const cityTime = new Date(weatherData.location.localtime);
+      return cityTime.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    }
+    // Fallback to system date
     const now = new Date();
     return now.toLocaleDateString('en-US', { 
       weekday: 'long', 
       day: 'numeric',
       month: 'long',
       year: 'numeric'
+    });
+  };
+
+  const getCurrentTime = () => {
+    if (weatherData && weatherData.location.localtime) {
+      // Parse the timezone offset from the API data
+      const timeZoneId = weatherData.location.tz_id;
+      
+      // Create a new date object with the current system time
+      // and format it in the city's timezone
+      const now = new Date();
+      
+      try {
+        // Use Intl.DateTimeFormat to get the time in the specific timezone
+        return now.toLocaleTimeString('en-US', {
+          timeZone: timeZoneId,
+          hour12: true,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+      } catch (error) {
+        // Fallback: calculate offset manually from localtime
+        const cityTime = new Date(weatherData.location.localtime);
+        const systemTime = new Date();
+        const cityOffset = cityTime.getTime() - systemTime.getTime();
+        const adjustedTime = new Date(systemTime.getTime() + cityOffset + (currentTime.getTime() - systemTime.getTime()));
+        
+        return adjustedTime.toLocaleTimeString('en-US', {
+          hour12: true,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+      }
+    }
+    
+    // Fallback to system time
+    return currentTime.toLocaleTimeString('en-US', {
+      hour12: true,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
     });
   };
 
@@ -205,7 +267,18 @@ const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
               <MapPin size={24} />
               {weatherData?.location.name}, {weatherData?.location.country}
             </h1>
-            <p style={{color: '#bfdbfe', fontSize: '14px', margin: '4px 0 0 0'}}>{getCurrentDate()}</p>
+            <div style={{display: 'flex', alignItems: 'center', gap: '16px', marginTop: '4px'}}>
+              <p style={{color: '#bfdbfe', fontSize: '14px', margin: '0'}}>{getCurrentDate()}</p>
+              <div style={{display: 'flex', alignItems: 'center', gap: '6px', color: '#93c5fd', fontSize: '14px'}}>
+                <Clock size={16} />
+                <span style={{fontFamily: 'monospace', fontSize: '15px'}}>{getCurrentTime()}</span>
+                {weatherData && (
+                  <span style={{fontSize: '12px', color: '#9ca3af', marginLeft: '4px'}}>
+                    ({weatherData.location.tz_id})
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
           
           {/* Search Bar */}
