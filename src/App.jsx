@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Eye, Droplets, Wind, Sun, Cloud, CloudRain, CloudSnow, Zap, Loader2 } from 'lucide-react';
+import './App.css';
 
-const WeatherApp = () => {
+const App = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [forecast, setForecast] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,19 +18,19 @@ const WeatherApp = () => {
     const conditionLower = condition.toLowerCase();
     
     if (conditionLower.includes('sunny') || conditionLower.includes('clear')) {
-      return isDay ? <Sun size={48} style={{color: '#fbbf24'}} /> : <Sun size={48} style={{color: '#d1d5db'}} />;
+      return isDay ? <Sun className="weather-icon weather-icon-sunny" /> : <Sun className="weather-icon weather-icon-night" />;
     } else if (conditionLower.includes('partly cloudy') || conditionLower.includes('partly')) {
-      return <Cloud size={48} style={{color: '#93c5fd'}} />;
+      return <Cloud className="weather-icon weather-icon-partly-cloudy" />;
     } else if (conditionLower.includes('cloudy') || conditionLower.includes('overcast')) {
-      return <Cloud size={48} style={{color: '#9ca3af'}} />;
+      return <Cloud className="weather-icon weather-icon-cloudy" />;
     } else if (conditionLower.includes('rain') || conditionLower.includes('drizzle')) {
-      return <CloudRain size={48} style={{color: '#3b82f6'}} />;
+      return <CloudRain className="weather-icon weather-icon-rain" />;
     } else if (conditionLower.includes('snow')) {
-      return <CloudSnow size={48} style={{color: '#bfdbfe'}} />;
+      return <CloudSnow className="weather-icon weather-icon-snow" />;
     } else if (conditionLower.includes('thunder') || conditionLower.includes('storm')) {
-      return <Zap size={48} style={{color: '#eab308'}} />;
+      return <Zap className="weather-icon weather-icon-thunder" />;
     }
-    return <Sun size={48} style={{color: '#fbbf24'}} />;
+    return <Sun className="weather-icon weather-icon-sunny" />;
   };
 
   const fetchWeather = async (city = currentCity) => {
@@ -81,6 +82,9 @@ const WeatherApp = () => {
         }
       };
 
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       setWeatherData(mockCurrentData);
       setForecast(mockForecastData.forecast.forecastday);
       setCurrentCity(city);
@@ -120,102 +124,48 @@ const WeatherApp = () => {
     fetchWeather();
   }, []);
 
-  // Inline styles for fallback
-  const containerStyle = {
-    minHeight: '100vh',
-    background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 25%, #3730a3 50%, #581c87 75%, #7c2d12 100%)',
-    color: 'white',
-    fontFamily: 'system-ui, -apple-system, sans-serif'
-  };
-
-  const cardStyle = {
-    background: 'rgba(255, 255, 255, 0.1)',
-    backdropFilter: 'blur(10px)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    borderRadius: '24px',
-    padding: '32px',
-    marginBottom: '32px'
-  };
-
-  const smallCardStyle = {
-    background: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: '16px',
-    padding: '16px',
-    textAlign: 'center'
-  };
-
   if (loading) {
     return (
-      <div style={{...containerStyle, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-        <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
-          <Loader2 size={32} style={{animation: 'spin 1s linear infinite'}} />
-          <span style={{fontSize: '20px'}}>Loading weather data...</span>
+      <div className="app-container loading-container">
+        <div className="loading-content">
+          <Loader2 className="loading-spinner" />
+          <span className="loading-text">Loading weather data...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={containerStyle}>
-      <div style={{maxWidth: '1200px', margin: '0 auto', padding: '32px 16px'}}>
+    <div className="app-container">
+      <div className="app-content">
         {/* Header */}
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px'}}>
-          <div>
-            <h1 style={{fontSize: '32px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', margin: '0'}}>
-              <MapPin size={24} />
+        <div className="header">
+          <div className="header-info">
+            <h1 className="city-name">
+              <MapPin className="location-icon" />
               {weatherData?.location.name}
             </h1>
-            <p style={{color: '#bfdbfe', fontSize: '14px', margin: '4px 0 0 0'}}>{getCurrentDate()}</p>
+            <p className="current-date">{getCurrentDate()}</p>
           </div>
           
           {/* Search Bar */}
-          <div style={{position: 'relative'}}>
+          <div className="search-container">
             <input
               type="text"
               value={searchCity}
               onChange={(e) => setSearchCity(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="Search city..."
-              style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '8px',
-                padding: '8px 40px 8px 16px',
-                color: 'white',
-                fontSize: '14px',
-                outline: 'none',
-                width: '200px'
-              }}
+              className="search-input"
             />
-            <button
-              onClick={handleSearch}
-              style={{
-                position: 'absolute',
-                right: '8px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none',
-                border: 'none',
-                color: '#bfdbfe',
-                cursor: 'pointer',
-                padding: '4px'
-              }}
-            >
-              <Search size={20} />
+            <button onClick={handleSearch} className="search-button">
+              <Search className="search-icon" />
             </button>
           </div>
         </div>
 
         {error && (
-          <div style={{
-            marginBottom: '24px',
-            padding: '16px',
-            background: 'rgba(239, 68, 68, 0.2)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '8px',
-            color: '#fecaca'
-          }}>
+          <div className="error-message">
             {error}
           </div>
         )}
@@ -223,88 +173,72 @@ const WeatherApp = () => {
         {weatherData && (
           <>
             {/* Main Weather Card */}
-            <div style={cardStyle}>
-              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '32px'}}>
-                <div style={{display: 'flex', alignItems: 'center', gap: '24px'}}>
-                  <div style={{textAlign: 'center'}}>
-                    <div style={{fontSize: '72px', fontWeight: '300', margin: '0 0 8px 0'}}>
+            <div className="weather-card">
+              <div className="weather-main">
+                <div className="temperature-section">
+                  <div className="temperature-display">
+                    <div className="temperature">
                       {Math.round(weatherData.current.temp_c)}°
                     </div>
-                    <div style={{color: '#bfdbfe', fontSize: '18px'}}>
+                    <div className="weather-condition">
                       {weatherData.current.condition.text}
                     </div>
                   </div>
                   
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '96px',
-                    height: '96px',
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    borderRadius: '50%'
-                  }}>
+                  <div className="weather-icon-container">
                     {getWeatherIcon(weatherData.current.condition.text, weatherData.current.is_day)}
                   </div>
                 </div>
 
                 {/* Weather Stats */}
-                <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px', minWidth: '300px'}}>
-                  <div style={smallCardStyle}>
-                    <Droplets size={24} style={{color: '#93c5fd', margin: '0 auto 8px'}} />
-                    <div style={{fontSize: '14px', color: '#bfdbfe', marginBottom: '4px'}}>Humidity</div>
-                    <div style={{fontSize: '20px', fontWeight: '600'}}>{weatherData.current.humidity}%</div>
+                <div className="weather-stats">
+                  <div className="stat-card">
+                    <Droplets className="stat-icon stat-icon-blue" />
+                    <div className="stat-label">Humidity</div>
+                    <div className="stat-value">{weatherData.current.humidity}%</div>
                   </div>
                   
-                  <div style={smallCardStyle}>
-                    <Wind size={24} style={{color: '#93c5fd', margin: '0 auto 8px'}} />
-                    <div style={{fontSize: '14px', color: '#bfdbfe', marginBottom: '4px'}}>Wind Speed</div>
-                    <div style={{fontSize: '20px', fontWeight: '600'}}>{weatherData.current.wind_kph} km/h</div>
+                  <div className="stat-card">
+                    <Wind className="stat-icon stat-icon-blue" />
+                    <div className="stat-label">Wind Speed</div>
+                    <div className="stat-value">{weatherData.current.wind_kph} km/h</div>
                   </div>
                   
-                  <div style={smallCardStyle}>
-                    <Sun size={24} style={{color: '#fbbf24', margin: '0 auto 8px'}} />
-                    <div style={{fontSize: '14px', color: '#bfdbfe', marginBottom: '4px'}}>UV Index</div>
-                    <div style={{fontSize: '20px', fontWeight: '600'}}>{weatherData.current.uv}</div>
+                  <div className="stat-card">
+                    <Sun className="stat-icon stat-icon-yellow" />
+                    <div className="stat-label">UV Index</div>
+                    <div className="stat-value">{weatherData.current.uv}</div>
                   </div>
                   
-                  <div style={smallCardStyle}>
-                    <Eye size={24} style={{color: '#93c5fd', margin: '0 auto 8px'}} />
-                    <div style={{fontSize: '14px', color: '#bfdbfe', marginBottom: '4px'}}>Visibility</div>
-                    <div style={{fontSize: '20px', fontWeight: '600'}}>{weatherData.current.vis_km} km</div>
+                  <div className="stat-card">
+                    <Eye className="stat-icon stat-icon-blue" />
+                    <div className="stat-label">Visibility</div>
+                    <div className="stat-value">{weatherData.current.vis_km} km</div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* 5-Day Forecast */}
-            <div style={cardStyle}>
-              <h2 style={{fontSize: '24px', fontWeight: '600', marginBottom: '24px'}}>5-Day Forecast</h2>
-              <div style={{display: 'flex', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap'}}>
+            <div className="forecast-card">
+              <h2 className="forecast-title">5-Day Forecast</h2>
+              <div className="forecast-container">
                 {forecast.map((day, index) => (
-                  <div key={index} style={{
-                    flex: '1',
-                    minWidth: '140px',
-                    textAlign: 'center',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    borderRadius: '16px',
-                    padding: '16px',
-                    transition: 'background 0.3s ease'
-                  }}>
-                    <div style={{color: '#bfdbfe', fontSize: '14px', marginBottom: '12px'}}>
+                  <div key={index} className="forecast-item">
+                    <div className="forecast-day">
                       {index === 0 ? 'Tomorrow' : formatDate(day.date)}
                     </div>
-                    <div style={{display: 'flex', justifyContent: 'center', marginBottom: '12px'}}>
+                    <div className="forecast-icon">
                       {getWeatherIcon(day.day.condition.text)}
                     </div>
-                    <div style={{fontSize: '12px', color: '#bfdbfe', marginBottom: '8px'}}>
+                    <div className="forecast-condition">
                       {day.day.condition.text}
                     </div>
-                    <div>
-                      <div style={{fontSize: '18px', fontWeight: '600', marginBottom: '4px'}}>
+                    <div className="forecast-temps">
+                      <div className="forecast-max">
                         {Math.round(day.day.maxtemp_c)}°
                       </div>
-                      <div style={{fontSize: '14px', color: '#93c5fd'}}>
+                      <div className="forecast-min">
                         {Math.round(day.day.mintemp_c)}°
                       </div>
                     </div>
@@ -315,33 +249,8 @@ const WeatherApp = () => {
           </>
         )}
       </div>
-
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        
-        input::placeholder {
-          color: #bfdbfe;
-        }
-        
-        button:hover {
-          color: white !important;
-        }
-        
-        @media (max-width: 768px) {
-          .weather-stats {
-            grid-template-columns: 1fr !important;
-          }
-          
-          .forecast-container {
-            flex-direction: column !important;
-          }
-        }
-      `}</style>
     </div>
   );
 };
 
-export default WeatherApp;
+export default App;
