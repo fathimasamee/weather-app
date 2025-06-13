@@ -11,7 +11,7 @@ const WeatherApp = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // WeatherAPI.com API key - you'll need to get one from weatherapi.com
- const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
+  const API_KEY = import.meta.env.VITE_WEATHER_API_KEY || 'your-api-key-here';
   const BASE_URL = 'https://api.weatherapi.com/v1';
 
   // Update time every second
@@ -22,6 +22,100 @@ const WeatherApp = () => {
 
     return () => clearInterval(timer);
   }, []);
+
+  // Function to determine if it's day or night based on weather data
+  const isDayTime = () => {
+    if (weatherData) {
+      return weatherData.current.is_day === 1;
+    }
+    // Fallback: check system time (6 AM to 6 PM is day)
+    const hour = new Date().getHours();
+    return hour >= 6 && hour < 18;
+  };
+
+  // Get dynamic background based on time and weather
+  const getBackgroundStyle = () => {
+    const isDay = isDayTime();
+    const condition = weatherData?.current.condition.text.toLowerCase() || '';
+    
+    if (isDay) {
+      // Daytime backgrounds
+      if (condition.includes('clear') || condition.includes('sunny')) {
+        return {
+          background: 'linear-gradient(135deg, #87CEEB 0%, #87CEFA 25%, #00BFFF 50%, #1E90FF 75%, #4169E1 100%)',
+          transition: 'background 1s ease-in-out'
+        };
+      } else if (condition.includes('partly cloudy')) {
+        return {
+          background: 'linear-gradient(135deg, #B0C4DE 0%, #87CEEB 25%, #6495ED 50%, #4682B4 75%, #2F4F4F 100%)',
+          transition: 'background 1s ease-in-out'
+        };
+      } else if (condition.includes('cloudy') || condition.includes('overcast')) {
+        return {
+          background: 'linear-gradient(135deg, #D3D3D3 0%, #A9A9A9 25%, #808080 50%, #696969 75%, #2F4F4F 100%)',
+          transition: 'background 1s ease-in-out'
+        };
+      } else if (condition.includes('rain') || condition.includes('drizzle')) {
+        return {
+          background: 'linear-gradient(135deg, #4682B4 0%, #36648B 25%, #27408B 50%, #191970 75%, #000080 100%)',
+          transition: 'background 1s ease-in-out'
+        };
+      } else if (condition.includes('snow')) {
+        return {
+          background: 'linear-gradient(135deg, #F0F8FF 0%, #E6E6FA 25%, #D3D3D3 50%, #C0C0C0 75%, #A9A9A9 100%)',
+          transition: 'background 1s ease-in-out'
+        };
+      } else if (condition.includes('thunder') || condition.includes('storm')) {
+        return {
+          background: 'linear-gradient(135deg, #2F4F4F 0%, #36454F 25%, #191970 50%, #000080 75%, #00008B 100%)',
+          transition: 'background 1s ease-in-out'
+        };
+      }
+      // Default day background
+      return {
+        background: 'linear-gradient(135deg, #87CEEB 0%, #4682B4 25%, #1E90FF 50%, #0000CD 75%, #191970 100%)',
+        transition: 'background 1s ease-in-out'
+      };
+    } else {
+      // Nighttime backgrounds
+      if (condition.includes('clear')) {
+        return {
+          background: 'linear-gradient(135deg, #191970 0%, #000080 25%, #00008B 50%, #0B0B2F 75%, #000000 100%)',
+          transition: 'background 1s ease-in-out'
+        };
+      } else if (condition.includes('partly cloudy')) {
+        return {
+          background: 'linear-gradient(135deg, #2F2F4F 0%, #191970 25%, #000080 50%, #0B0B2F 75%, #000000 100%)',
+          transition: 'background 1s ease-in-out'
+        };
+      } else if (condition.includes('cloudy') || condition.includes('overcast')) {
+        return {
+          background: 'linear-gradient(135deg, #36454F 0%, #2F4F4F 25%, #191970 50%, #0B0B2F 75%, #000000 100%)',
+          transition: 'background 1s ease-in-out'
+        };
+      } else if (condition.includes('rain') || condition.includes('drizzle')) {
+        return {
+          background: 'linear-gradient(135deg, #2F4F4F 0%, #191970 25%, #000080 50%, #00008B 75%, #000000 100%)',
+          transition: 'background 1s ease-in-out'
+        };
+      } else if (condition.includes('snow')) {
+        return {
+          background: 'linear-gradient(135deg, #4F4F4F 0%, #2F2F4F 25%, #191970 50%, #0B0B2F 75%, #000000 100%)',
+          transition: 'background 1s ease-in-out'
+        };
+      } else if (condition.includes('thunder') || condition.includes('storm')) {
+        return {
+          background: 'linear-gradient(135deg, #0B0B0B 0%, #191970 25%, #000080 50%, #00008B 75%, #8B0000 100%)',
+          transition: 'background 1s ease-in-out'
+        };
+      }
+      // Default night background
+      return {
+        background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 25%, #3730a3 50%, #581c87 75%, #7c2d12 100%)',
+        transition: 'background 1s ease-in-out'
+      };
+    }
+  };
 
   const getWeatherIcon = (condition, isDay = 1) => {
     const conditionLower = condition.toLowerCase();
@@ -222,28 +316,36 @@ const WeatherApp = () => {
     fetchWeather();
   }, []);
 
-  // Inline styles for fallback
+  // Enhanced card styles with better contrast for different backgrounds
+  const getCardStyle = () => {
+    const isDay = isDayTime();
+    return {
+      background: isDay ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.1)',
+      backdropFilter: 'blur(15px)',
+      border: `1px solid ${isDay ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.2)'}`,
+      borderRadius: '24px',
+      padding: '32px',
+      marginBottom: '32px',
+      boxShadow: isDay ? '0 8px 32px rgba(0, 0, 0, 0.1)' : '0 8px 32px rgba(0, 0, 0, 0.3)'
+    };
+  };
+
+  const getSmallCardStyle = () => {
+    const isDay = isDayTime();
+    return {
+      background: isDay ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.08)',
+      borderRadius: '16px',
+      padding: '16px',
+      textAlign: 'center',
+      border: `1px solid ${isDay ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.15)'}`
+    };
+  };
+
   const containerStyle = {
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 25%, #3730a3 50%, #581c87 75%, #7c2d12 100%)',
     color: 'white',
-    fontFamily: 'system-ui, -apple-system, sans-serif'
-  };
-
-  const cardStyle = {
-    background: 'rgba(255, 255, 255, 0.1)',
-    backdropFilter: 'blur(10px)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    borderRadius: '24px',
-    padding: '32px',
-    marginBottom: '32px'
-  };
-
-  const smallCardStyle = {
-    background: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: '16px',
-    padding: '16px',
-    textAlign: 'center'
+    fontFamily: 'system-ui, -apple-system, sans-serif',
+    ...getBackgroundStyle()
   };
 
   if (loading) {
@@ -268,12 +370,12 @@ const WeatherApp = () => {
               {weatherData?.location.name}, {weatherData?.location.country}
             </h1>
             <div style={{display: 'flex', alignItems: 'center', gap: '16px', marginTop: '4px'}}>
-              <p style={{color: '#bfdbfe', fontSize: '14px', margin: '0'}}>{getCurrentDate()}</p>
-              <div style={{display: 'flex', alignItems: 'center', gap: '6px', color: '#93c5fd', fontSize: '14px'}}>
+              <p style={{color: isDayTime() ? 'rgba(255, 255, 255, 0.8)' : '#bfdbfe', fontSize: '14px', margin: '0'}}>{getCurrentDate()}</p>
+              <div style={{display: 'flex', alignItems: 'center', gap: '6px', color: isDayTime() ? 'rgba(255, 255, 255, 0.9)' : '#93c5fd', fontSize: '14px'}}>
                 <Clock size={16} />
                 <span style={{fontFamily: 'monospace', fontSize: '15px'}}>{getCurrentTime()}</span>
                 {weatherData && (
-                  <span style={{fontSize: '12px', color: '#9ca3af', marginLeft: '4px'}}>
+                  <span style={{fontSize: '12px', color: isDayTime() ? 'rgba(255, 255, 255, 0.6)' : '#9ca3af', marginLeft: '4px'}}>
                     ({weatherData.location.tz_id})
                   </span>
                 )}
@@ -290,9 +392,9 @@ const WeatherApp = () => {
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="Search city..."
               style={{
-                background: 'rgba(255, 255, 255, 0.1)',
+                background: isDayTime() ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
                 backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
+                border: `1px solid ${isDayTime() ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.2)'}`,
                 borderRadius: '8px',
                 padding: '8px 40px 8px 16px',
                 color: 'white',
@@ -310,7 +412,7 @@ const WeatherApp = () => {
                 transform: 'translateY(-50%)',
                 background: 'none',
                 border: 'none',
-                color: '#bfdbfe',
+                color: isDayTime() ? 'rgba(255, 255, 255, 0.8)' : '#bfdbfe',
                 cursor: 'pointer',
                 padding: '4px'
               }}
@@ -336,14 +438,14 @@ const WeatherApp = () => {
         {weatherData && (
           <>
             {/* Main Weather Card */}
-            <div style={cardStyle}>
+            <div style={getCardStyle()}>
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '32px'}}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '24px'}}>
                   <div style={{textAlign: 'center'}}>
                     <div style={{fontSize: '72px', fontWeight: '300', margin: '0 0 8px 0'}}>
                       {Math.round(weatherData.current.temp_c)}°
                     </div>
-                    <div style={{color: '#bfdbfe', fontSize: '18px'}}>
+                    <div style={{color: isDayTime() ? 'rgba(255, 255, 255, 0.8)' : '#bfdbfe', fontSize: '18px'}}>
                       {weatherData.current.condition.text}
                     </div>
                   </div>
@@ -354,7 +456,7 @@ const WeatherApp = () => {
                     justifyContent: 'center',
                     width: '96px',
                     height: '96px',
-                    background: 'rgba(255, 255, 255, 0.1)',
+                    background: isDayTime() ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.1)',
                     borderRadius: '50%'
                   }}>
                     {getWeatherIcon(weatherData.current.condition.text, weatherData.current.is_day)}
@@ -363,27 +465,27 @@ const WeatherApp = () => {
 
                 {/* Weather Stats */}
                 <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px', minWidth: '300px'}}>
-                  <div style={smallCardStyle}>
+                  <div style={getSmallCardStyle()}>
                     <Droplets size={24} style={{color: '#93c5fd', margin: '0 auto 8px'}} />
-                    <div style={{fontSize: '14px', color: '#bfdbfe', marginBottom: '4px'}}>Humidity</div>
+                    <div style={{fontSize: '14px', color: isDayTime() ? 'rgba(255, 255, 255, 0.8)' : '#bfdbfe', marginBottom: '4px'}}>Humidity</div>
                     <div style={{fontSize: '20px', fontWeight: '600'}}>{weatherData.current.humidity}%</div>
                   </div>
                   
-                  <div style={smallCardStyle}>
+                  <div style={getSmallCardStyle()}>
                     <Wind size={24} style={{color: '#93c5fd', margin: '0 auto 8px'}} />
-                    <div style={{fontSize: '14px', color: '#bfdbfe', marginBottom: '4px'}}>Wind Speed</div>
+                    <div style={{fontSize: '14px', color: isDayTime() ? 'rgba(255, 255, 255, 0.8)' : '#bfdbfe', marginBottom: '4px'}}>Wind Speed</div>
                     <div style={{fontSize: '20px', fontWeight: '600'}}>{weatherData.current.wind_kph} km/h</div>
                   </div>
                   
-                  <div style={smallCardStyle}>
+                  <div style={getSmallCardStyle()}>
                     <Sun size={24} style={{color: '#fbbf24', margin: '0 auto 8px'}} />
-                    <div style={{fontSize: '14px', color: '#bfdbfe', marginBottom: '4px'}}>UV Index</div>
+                    <div style={{fontSize: '14px', color: isDayTime() ? 'rgba(255, 255, 255, 0.8)' : '#bfdbfe', marginBottom: '4px'}}>UV Index</div>
                     <div style={{fontSize: '20px', fontWeight: '600'}}>{weatherData.current.uv}</div>
                   </div>
                   
-                  <div style={smallCardStyle}>
+                  <div style={getSmallCardStyle()}>
                     <Eye size={24} style={{color: '#93c5fd', margin: '0 auto 8px'}} />
-                    <div style={{fontSize: '14px', color: '#bfdbfe', marginBottom: '4px'}}>Visibility</div>
+                    <div style={{fontSize: '14px', color: isDayTime() ? 'rgba(255, 255, 255, 0.8)' : '#bfdbfe', marginBottom: '4px'}}>Visibility</div>
                     <div style={{fontSize: '20px', fontWeight: '600'}}>{weatherData.current.vis_km} km</div>
                   </div>
                 </div>
@@ -391,7 +493,7 @@ const WeatherApp = () => {
             </div>
 
             {/* 5-Day Forecast */}
-            <div style={cardStyle}>
+            <div style={getCardStyle()}>
               <h2 style={{fontSize: '24px', fontWeight: '600', marginBottom: '24px'}}>5-Day Forecast</h2>
               <div style={{display: 'flex', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap'}}>
                 {forecast.map((day, index) => (
@@ -399,25 +501,26 @@ const WeatherApp = () => {
                     flex: '1',
                     minWidth: '140px',
                     textAlign: 'center',
-                    background: 'rgba(255, 255, 255, 0.05)',
+                    background: isDayTime() ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)',
                     borderRadius: '16px',
                     padding: '16px',
-                    transition: 'background 0.3s ease'
+                    transition: 'background 0.3s ease',
+                    border: `1px solid ${isDayTime() ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)'}`
                   }}>
-                    <div style={{color: '#bfdbfe', fontSize: '14px', marginBottom: '12px'}}>
+                    <div style={{color: isDayTime() ? 'rgba(255, 255, 255, 0.8)' : '#bfdbfe', fontSize: '14px', marginBottom: '12px'}}>
                       {index === 0 ? 'Today' : formatDate(day.date)}
                     </div>
                     <div style={{display: 'flex', justifyContent: 'center', marginBottom: '12px'}}>
                       {getWeatherIcon(day.day.condition.text)}
                     </div>
-                    <div style={{fontSize: '12px', color: '#bfdbfe', marginBottom: '8px'}}>
+                    <div style={{fontSize: '12px', color: isDayTime() ? 'rgba(255, 255, 255, 0.7)' : '#bfdbfe', marginBottom: '8px'}}>
                       {day.day.condition.text}
                     </div>
                     <div>
                       <div style={{fontSize: '18px', fontWeight: '600', marginBottom: '4px'}}>
                         {Math.round(day.day.maxtemp_c)}°
                       </div>
-                      <div style={{fontSize: '14px', color: '#93c5fd'}}>
+                      <div style={{fontSize: '14px', color: isDayTime() ? 'rgba(255, 255, 255, 0.8)' : '#93c5fd'}}>
                         {Math.round(day.day.mintemp_c)}°
                       </div>
                     </div>
@@ -436,7 +539,7 @@ const WeatherApp = () => {
         }
         
         input::placeholder {
-          color: #bfdbfe;
+          color: rgba(255, 255, 255, 0.7);
         }
         
         button:hover {
